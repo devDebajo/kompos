@@ -1,11 +1,145 @@
 package ru.debajo.kompos
 
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import ru.debajo.kompos.komposifier.DefaultKomposNodeVisualizer
 import ru.debajo.kompos.komposifier.KomposMeasurePolicyVisualizer
 import ru.debajo.kompos.komposifier.KomposNodeVisualizer
 import ru.debajo.kompos.komposifier.Komposifier
 import ru.debajo.kompos.komposifier.then
+
+class KomposNodePool {
+
+    private val free: HashSet<KomposNodePooled> = HashSet()
+    private val buzy: HashSet<KomposNodePooled> = HashSet()
+
+    fun get(): KomposNodePooled {
+        if (free.isEmpty()) {
+            return KomposNodePooled().also { buzy.add(it) }
+        }
+        val node = free.first()
+        free.remove(node)
+        buzy.add(node)
+        return node
+    }
+
+    fun recycleAll() {
+        buzy.forEach {
+            it.clear()
+            free.add(it)
+        }
+    }
+}
+
+class KomposNodePooled : KomposDensity {
+    var density: KomposDensity = DefaultKomposDensity
+    var name: String = ""
+    var visualizer: KomposNodeVisualizer = DefaultKomposNodeVisualizer
+    var childMeasurePolicy: KomposMeasurePolicy = DefaultKomposMeasurePolicy
+
+    private val nestedNodes: MutableList<KomposNodePooled> = mutableListOf()
+
+    private val measureScope: KomposMeasureScopeImpl = KomposMeasureScopeImpl(this)
+    private val renderScope: MutableKomposRenderScope = MutableKomposRenderScope {
+        with(visualizer) {
+            render()
+        }
+        for (nestedNode in nestedNodes) {
+            nestedNode.draw(canvas, size)
+        }
+    }
+
+    fun draw(canvas: Canvas, size: KomposSize) {
+        renderScope.size = size
+        renderScope.configure(canvas, density)
+        renderScope.drawContent()
+    }
+
+    fun addChild(node: KomposNodePooled) {
+        if (this === node) {
+            error("could not add node in self")
+        }
+        nestedNodes.add(node)
+    }
+
+    fun onTouch(touchEvent: KomposTouchEvent): Boolean {
+        return if (nestedNodes.any { it.onTouch(touchEvent) }) {
+            true
+        } else {
+            visualizer.onTouch(touchEvent)
+        }
+    }
+
+    fun asMeasurable(): KomposMeasurable {
+        return object : KomposMeasurable {
+            override fun measure(constraints: KomposConstraints): KomposPlaceable {
+                val measureResult = with(visualizer) {
+                    measureScope.measure(asMeasurableInternal(), constraints)
+                }
+
+                return object : KomposPlaceable {
+                    override val size: KomposSize
+                        get() = KomposSize.create(measureResult.width, measureResult.height)
+
+                    override fun placeAt(x: Int, y: Int) {
+                        measureResult.placeChildren(x, y)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun KDp.toPx(): Float {
+        return with(density) { toPx() }
+    }
+
+    override fun KSp.toPx(): Float {
+        return with(density) { toPx() }
+    }
+
+    override fun getDrawable(id: Int): Drawable {
+        return with(density) { getDrawable(id) }
+    }
+
+    override fun toString(): String = "KomposNode($name)"
+
+    fun clear() {
+        density = DefaultKomposDensity
+        name = ""
+        visualizer = DefaultKomposNodeVisualizer
+        childMeasurePolicy = DefaultKomposMeasurePolicy
+        nestedNodes.clear()
+    }
+
+    private fun asMeasurableInternal(): KomposMeasurable {
+        return object : KomposMeasurable {
+            override fun measure(constraints: KomposConstraints): KomposPlaceable {
+                val measureResult = this@KomposNodePooled.measure(constraints)
+                return asPlaceable(measureResult)
+            }
+        }
+    }
+
+    private fun measure(constraints: KomposConstraints): KomposMeasureResult {
+        return with(childMeasurePolicy) {
+            measureScope.measure(
+                nestedNodes.map { it.asMeasurable() },
+                constraints,
+            )
+        }
+    }
+
+    private fun asPlaceable(measureResult: KomposMeasureResult): KomposPlaceable {
+        return object : KomposPlaceable {
+            override val size: KomposSize
+                get() = KomposSize.create(measureResult.width, measureResult.height)
+
+            override fun placeAt(x: Int, y: Int) {
+                measureResult.placeChildren(x, y)
+            }
+        }
+    }
+}
 
 class KomposNode(
     private val density: KomposDensity,
