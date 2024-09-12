@@ -22,7 +22,7 @@ value class Kolor(val argb: Int) {
         val Red: Kolor = Kolor(Color.RED)
         val Green: Kolor = Kolor(Color.GREEN)
         val Blue: Kolor = Kolor(Color.BLUE)
-        val YELLOW: Kolor = Kolor(Color.YELLOW)
+        val Yellow: Kolor = Kolor(Color.YELLOW)
         val Cyan: Kolor = Kolor(Color.CYAN)
         val Magenta: Kolor = Kolor(Color.MAGENTA)
         val Transparent: Kolor = Kolor(Color.TRANSPARENT)

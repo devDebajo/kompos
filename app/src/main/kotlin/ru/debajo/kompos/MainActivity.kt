@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
                 .background(Kolor.Black)
         ) {
             drawable(R.drawable.ic_launcher_foreground)
+            text("test", color = Kolor.Red)
         }
 
 //        box {
