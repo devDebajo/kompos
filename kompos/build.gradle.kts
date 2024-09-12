@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ru.debajo.mylibrary"
+    namespace = "ru.debajo.kompos"
     compileSdk = 34
 
     defaultConfig {

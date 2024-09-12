@@ -3,45 +3,78 @@ package ru.debajo.kompos
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import ru.debajo.kompos.ui.theme.KomposTheme
+import androidx.compose.ui.viewinterop.AndroidView
+import ru.debajo.kompos.komposifier.Komposifier
+import ru.debajo.kompos.komposifier.height
+import ru.debajo.kompos.komposifier.padding
+import ru.debajo.kompos.komposifier.size
+import ru.debajo.kompos.widget.KomposAlignment
+import ru.debajo.kompos.widget.box
+import ru.debajo.kompos.widget.drawable
+import ru.debajo.kompos.widget.text
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
         setContent {
-            KomposTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            AndroidView(factory = {
+                KomposView(it).apply {
+                    setContent { test() }
                 }
-            }
+            })
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun KomposScope.test() {
+        box(
+            contentVerticalAlignment = KomposAlignment.Center,
+            contentHorizontalAlignment = KomposAlignment.Center,
+            komposifier = Komposifier
+                .size(40.kdp)
+                .background(Kolor.Black)
+        ) {
+            drawable(R.drawable.ic_launcher_foreground)
+        }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    KomposTheme {
-        Greeting("Android")
+//        box {
+//            column {
+//                row {
+//                    text("text1", textSize = 30.ksp)
+//                    text(
+//                        "text2",
+//                        komposifier = Komposifier
+//                            .clip(KomposRoundedCornerShape(10.kdp))
+//                            .background(Kolor.Red)
+//                            .padding(8.kdp)
+//                            .background(Kolor.Blue),
+//                        color = Kolor.White
+//                    )
+//                    text("text3")
+//                }
+//                text("text4")
+//                text("text5")
+//                text("text6")
+//            }
+//        }
+    }
+
+    private fun KomposScope.button(
+        komposifier: Komposifier = Komposifier,
+        text: String,
+        onClick: () -> Unit
+    ) {
+        box(
+            contentVerticalAlignment = KomposAlignment.Center,
+            contentHorizontalAlignment = KomposAlignment.Start,
+            komposifier = komposifier
+                .height(40.kdp)
+                .clip(KomposRoundedCornerShape(8.kdp))
+                .background(Kolor.Gray)
+                .padding(horizontal = 16.kdp)
+                .clickable(onClick = onClick)
+        ) {
+            text(text = text)
+        }
     }
 }
