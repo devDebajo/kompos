@@ -118,17 +118,19 @@ class Komposer(val id: String) {
         operations.add(TreeOperation.EndGroup)
     }
 
-    fun buildTree(): KomposNodePooled {
-        val rootNode = nodePool.get()
-        rootNode.name = "root"
-        val childNode = operations.readNode(0).second
+    fun buildTree(density: KomposDensity): KomposNodePooled {
+        val rootNode = nodePool.get(density, "root")
+        val childNode = operations.readNode(0, density).second
         if (childNode != null) {
             rootNode.addChild(childNode)
         }
         return rootNode
     }
 
-    private fun List<TreeOperation>.readNode(from: Int): Pair<Int, KomposNodePooled?> {
+    private fun List<TreeOperation>.readNode(
+        from: Int,
+        density: KomposDensity
+    ): Pair<Int, KomposNodePooled?> {
         var index = from
         var readingGroup = false
         var node: KomposNodePooled? = null
@@ -136,14 +138,13 @@ class Komposer(val id: String) {
             when (val operation = this[index]) {
                 is TreeOperation.StartNode -> {
                     if (readingGroup) {
-                        val (lastIndex, childNode) = readNode(from = index)
+                        val (lastIndex, childNode) = readNode(from = index, density = density)
                         if (childNode != null) {
                             node!!.addChild(childNode)
                         }
                         index = lastIndex
                     } else {
-                        node = nodePool.get()
-                        node.name = operation.name
+                        node = nodePool.get(density, operation.name)
                     }
                 }
 
@@ -151,7 +152,7 @@ class Komposer(val id: String) {
                 is TreeOperation.SetMeasurePolicy -> node!!.apply(operation)
                 is TreeOperation.StartGroup -> {
                     readingGroup = true
-                    val (lastIndex, childNode) = readNode(from = index + 1)
+                    val (lastIndex, childNode) = readNode(from = index + 1, density = density)
                     if (childNode != null) {
                         node!!.addChild(childNode)
                     }

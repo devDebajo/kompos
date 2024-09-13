@@ -146,11 +146,11 @@ class Komposition(
     }
 
     fun printTree() {
-        Log.d("yopta",  ensureNode().format(0))
+        Log.d("yopta", ensureNode().format(0))
     }
 
     private fun ensureNode(): KomposNodePooled {
-        return node ?: currentKomposer.buildTree().also {
+        return node ?: currentKomposer.buildTree(this).also {
             node = it
         }
     }

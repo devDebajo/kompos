@@ -13,9 +13,13 @@ class KomposNodePool {
     private val free: HashSet<KomposNodePooled> = HashSet()
     private val buzy: HashSet<KomposNodePooled> = HashSet()
 
-    fun get(): KomposNodePooled {
+    fun get(density: KomposDensity, name: String): KomposNodePooled {
         if (free.isEmpty()) {
-            return KomposNodePooled().also { buzy.add(it) }
+            return KomposNodePooled().also {
+                buzy.add(it)
+                it.density = density
+                it.name = name
+            }
         }
         val node = free.first()
         free.remove(node)
@@ -56,7 +60,7 @@ class KomposNodePooled : KomposDensity {
 
     fun draw(canvas: Canvas, size: KomposSize) {
         renderScope.size = size
-        renderScope.configure(canvas, density)
+        renderScope.configure(canvas, this)
         renderScope.drawContent()
     }
 
