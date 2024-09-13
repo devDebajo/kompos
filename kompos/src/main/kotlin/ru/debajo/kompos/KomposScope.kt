@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import ru.debajo.kompos.komposifier.Komposifier
@@ -32,6 +33,7 @@ class KomposView @JvmOverloads constructor(
         )
 
         komposition!!.content()
+        komposition!!.printTree()
         requestLayout()
     }
 
@@ -148,6 +150,10 @@ class Komposition(
 
     fun onTouch(touchEvent: KomposTouchEvent): Boolean {
         return node.onTouch(touchEvent)
+    }
+
+    fun printTree() {
+        Log.d("yopta", node.format(0))
     }
 }
 

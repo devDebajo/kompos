@@ -31,6 +31,8 @@ private class DrawableKomposifier(private val drawable: Drawable) : Komposifier 
     override fun createVisualizer(outer: KomposNodeVisualizer): KomposNodeVisualizer {
         return outer.then(DrawableVisualizer(drawable))
     }
+
+    override fun toString(): String = "DrawableKomposifier"
 }
 
 private class DrawableVisualizer(private val drawable: Drawable) : KomposNodeVisualizer {

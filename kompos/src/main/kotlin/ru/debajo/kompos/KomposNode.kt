@@ -10,12 +10,12 @@ import ru.debajo.kompos.komposifier.then
 class KomposNode(
     private val density: KomposDensity,
     private val name: String,
-    private val renderAction: KomposRenderAction,
-    private val measurePolicy: KomposSingleMeasurePolicy,
-    private val touchHandler: KomposTouchHandler,
+    private val komposifier: Komposifier,
 ) {
+    private val visualizer: KomposNodeVisualizer =
+        komposifier.createVisualizer(DefaultKomposNodeVisualizer)
     private val renderScope: MutableKomposRenderScope = MutableKomposRenderScope {
-        with(renderAction) {
+        with(visualizer) {
             render()
         }
         for (nestedNode in nestedNodes) {
@@ -43,14 +43,14 @@ class KomposNode(
         return if (nestedNodes.any { it.onTouch(touchEvent) }) {
             true
         } else {
-            touchHandler.onTouch(touchEvent)
+            visualizer.onTouch(touchEvent)
         }
     }
 
     fun asMeasurable(): KomposMeasurable {
         return object : KomposMeasurable {
             override fun measure(constraints: KomposConstraints): KomposPlaceable {
-                val measureResult = with(measurePolicy) {
+                val measureResult = with(visualizer) {
                     measureScope.measure(asMeasurableInternal(), constraints)
                 }
 
@@ -67,6 +67,26 @@ class KomposNode(
     }
 
     override fun toString(): String = "KomposNode($name)"
+
+    fun format(depth: Int): String {
+        return buildString {
+            appendLine("${createIndent(depth)}KomposNode(")
+            appendLine("${createIndent(depth + 1)}name = $name,")
+            appendLine("${createIndent(depth + 1)}komposifier = $komposifier,")
+            if (nestedNodes.isNotEmpty()) {
+                appendLine("${createIndent(depth + 1)}children = [")
+                for (nestedNode in nestedNodes) {
+                    appendLine(nestedNode.format(depth + 2))
+                }
+                appendLine("${createIndent(depth + 1)}]")
+            }
+            append("${createIndent(depth)})")
+        }
+    }
+
+    private fun createIndent(depth: Int): String {
+        return "    ".repeat(depth)
+    }
 
     private fun asMeasurableInternal(): KomposMeasurable {
         return object : KomposMeasurable {
@@ -99,13 +119,10 @@ class KomposNode(
 }
 
 fun KomposScope.createNode(name: String, komposifier: Komposifier): KomposNode {
-    val visualizer = komposifier.createVisualizer(DefaultKomposNodeVisualizer)
     return KomposNode(
         density = this,
         name = name,
-        renderAction = visualizer,
-        measurePolicy = visualizer,
-        touchHandler = visualizer,
+        komposifier = komposifier,
     )
 }
 
