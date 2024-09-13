@@ -26,6 +26,16 @@ fun KSp.toPx(density: KomposDensity): Float {
     return with(density) { toPx() }
 }
 
+object DefaultKomposDensity : KomposDensity {
+    override fun KDp.toPx(): Float = value
+
+    override fun KSp.toPx(): Float = value
+
+    override fun getDrawable(id: Int): Drawable {
+        error("DefaultKomposDensity could not get drawable")
+    }
+}
+
 class KomposContextDensity(private val context: Context) : KomposDensity {
     override fun KDp.toPx(): Float {
         return TypedValue.applyDimension(

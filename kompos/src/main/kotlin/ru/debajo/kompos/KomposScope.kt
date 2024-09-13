@@ -7,13 +7,9 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import ru.debajo.kompos.komposifier.Komposifier
 import kotlin.math.roundToInt
 
 interface KomposScope : KomposDensity {
-
-    fun addNode(node: KomposNode)
-
     val currentKomposer: Komposer
 }
 
@@ -27,9 +23,8 @@ class KomposView @JvmOverloads constructor(
 
     fun setContent(content: KomposScope.() -> Unit) {
         komposition = Komposition(
-            KomposContextDensity(context),
             // TODO getOrCreateComposer
-            GlobalKomposer.newKomposer(),
+            GlobalKomposer.newKomposer(KomposContextDensity(context)),
         )
 
         komposition!!.content()
@@ -129,54 +124,31 @@ class KomposView @JvmOverloads constructor(
 }
 
 class Komposition(
-    density: KomposDensity,
     override val currentKomposer: Komposer,
-) : KomposScope, KomposDensity by density {
-    private val node: KomposNode = createNode("root", Komposifier)
+) : KomposScope, KomposDensity by currentKomposer.density {
 
-    override fun addNode(node: KomposNode) {
-        this.node.addChild(node)
-    }
+    private var node: KomposNode? = null
 
     fun measure(constraints: KomposConstraints): KomposSize {
-        val placeable = node.asMeasurable().measure(constraints)
+        val placeable = ensureNode().asMeasurable().measure(constraints)
         placeable.placeAt(0, 0)
         return placeable.size
     }
 
     fun draw(canvas: Canvas, width: Int, height: Int) {
-        node.draw(canvas, KomposSize.create(width, height))
+        ensureNode().draw(canvas, KomposSize.create(width, height))
     }
 
     fun onTouch(touchEvent: KomposTouchEvent): Boolean {
-        return node.onTouch(touchEvent)
+        return ensureNode().onTouch(touchEvent)
     }
 
     fun printTree() {
-        Log.d("yopta", node.format(0))
-    }
-}
-
-class KomposScopeImpl(
-    name: String,
-    private val parentScope: KomposScope,
-    komposifier: Komposifier
-) : KomposScope, KomposDensity by parentScope {
-
-    private val node: KomposNode = createNode(name, komposifier)
-
-    init {
-        parentScope.addNode(node)
+        Log.d("yopta", ensureNode().format(0))
     }
 
-    override fun addNode(node: KomposNode) {
-        this.node.addChild(node)
-    }
-
-    override val currentKomposer: Komposer
-        get() = parentScope.currentKomposer
-
-    fun registerMeasurePolicy(measurePolicy: KomposMeasurePolicy) {
-        node.childMeasurePolicy = measurePolicy
+    private fun ensureNode(): KomposNode {
+        return node ?: currentKomposer.buildTree()
+            .also { node = it }
     }
 }

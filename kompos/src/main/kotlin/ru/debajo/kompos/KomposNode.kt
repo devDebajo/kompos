@@ -1,19 +1,33 @@
 package ru.debajo.kompos
 
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import ru.debajo.kompos.komposifier.DefaultKomposNodeVisualizer
 import ru.debajo.kompos.komposifier.KomposMeasurePolicyVisualizer
 import ru.debajo.kompos.komposifier.KomposNodeVisualizer
 import ru.debajo.kompos.komposifier.Komposifier
 import ru.debajo.kompos.komposifier.then
 
-class KomposNode(
-    private val density: KomposDensity,
-    private val name: String,
-    private val komposifier: Komposifier,
-) {
-    private val visualizer: KomposNodeVisualizer =
-        komposifier.createVisualizer(DefaultKomposNodeVisualizer)
+class KomposNode : KomposDensity {
+    private var density: KomposDensity = DefaultKomposDensity
+
+    var name: String = ""
+        private set
+
+    var key: String = ""
+        private set
+
+    var komposifier: Komposifier = Komposifier
+        set(value) {
+            field = value
+            visualizer = komposifier.createVisualizer(DefaultKomposNodeVisualizer)
+        }
+    var childMeasurePolicy: KomposMeasurePolicy = DefaultKomposMeasurePolicy
+    private var visualizer: KomposNodeVisualizer = DefaultKomposNodeVisualizer
+
+    private val nestedNodes: MutableList<KomposNode> = mutableListOf()
+
+    private val measureScope: KomposMeasureScopeImpl = KomposMeasureScopeImpl(this)
     private val renderScope: MutableKomposRenderScope = MutableKomposRenderScope {
         with(visualizer) {
             render()
@@ -22,13 +36,16 @@ class KomposNode(
             nestedNode.draw(canvas, size)
         }
     }
-    private val measureScope: KomposMeasureScopeImpl = KomposMeasureScopeImpl(density)
-    private val nestedNodes: MutableList<KomposNode> = mutableListOf()
-    var childMeasurePolicy: KomposMeasurePolicy = DefaultKomposMeasurePolicy
+
+    fun inflate(density: KomposDensity, name: String, key: String) {
+        this.density = density
+        this.name = name
+        this.key = key
+    }
 
     fun draw(canvas: Canvas, size: KomposSize) {
         renderScope.size = size
-        renderScope.configure(canvas, density)
+        renderScope.configure(canvas, this)
         renderScope.drawContent()
     }
 
@@ -66,17 +83,39 @@ class KomposNode(
         }
     }
 
+    override fun KDp.toPx(): Float {
+        return with(density) { toPx() }
+    }
+
+    override fun KSp.toPx(): Float {
+        return with(density) { toPx() }
+    }
+
+    override fun getDrawable(id: Int): Drawable {
+        return with(density) { getDrawable(id) }
+    }
+
+    fun clear() {
+        density = DefaultKomposDensity
+        name = ""
+        key = ""
+        komposifier = Komposifier
+        childMeasurePolicy = DefaultKomposMeasurePolicy
+        nestedNodes.clear()
+    }
+
     override fun toString(): String = "KomposNode($name)"
 
     fun format(depth: Int): String {
         return buildString {
             appendLine("${createIndent(depth)}KomposNode(")
             appendLine("${createIndent(depth + 1)}name = $name,")
+            appendLine("${createIndent(depth + 1)}key = $key,")
             appendLine("${createIndent(depth + 1)}komposifier = $komposifier,")
             if (nestedNodes.isNotEmpty()) {
                 appendLine("${createIndent(depth + 1)}children = [")
                 for (nestedNode in nestedNodes) {
-                    appendLine(nestedNode.format(depth + 2))
+                    appendLine("${nestedNode.format(depth + 2)},")
                 }
                 appendLine("${createIndent(depth + 1)}]")
             }
@@ -116,14 +155,6 @@ class KomposNode(
             }
         }
     }
-}
-
-fun KomposScope.createNode(name: String, komposifier: Komposifier): KomposNode {
-    return KomposNode(
-        density = this,
-        name = name,
-        komposifier = komposifier,
-    )
 }
 
 interface KomposMeasurable {
