@@ -1,8 +1,8 @@
 package ru.debajo.kompos
 
 import android.util.Log
-import ru.debajo.kompos.komposifier.DefaultKomposNodeVisualizer
 import ru.debajo.kompos.komposifier.Komposifier
+import java.security.MessageDigest
 import java.util.UUID
 
 fun KomposScope.layout(
@@ -25,13 +25,44 @@ fun KomposScope.newNode(
     content: KomposScope.() -> Unit = {},
     measurePolicy: KomposMeasurePolicy = DefaultKomposMeasurePolicy,
 ) {
-    currentKomposer.startNode(name)
+    val nodeKey = getCurrentNodeUniqueKey()
+    currentKomposer.startNode(name, nodeKey)
     currentKomposer.setMeasurePolicy(measurePolicy)
     currentKomposer.setKomposifier(komposifier)
     currentKomposer.startGroup()
     content()
     currentKomposer.endGroup()
     currentKomposer.endNode()
+}
+
+private fun getCurrentNodeUniqueKey(): String {
+    val trace = mutableListOf<String>()
+    for (stackTraceElement in Thread.currentThread().stackTrace.drop(3)) {
+        trace.add("${stackTraceElement.fileName}${stackTraceElement.className}${stackTraceElement.methodName}${stackTraceElement.lineNumber}".hash())
+        if (stackTraceElement.methodName == "setContent") {
+            break
+        }
+    }
+
+    return trace.joinToString().hash()
+}
+
+private val digest = MessageDigest.getInstance("SHA-256")
+
+private fun String.hash(): String {
+    return bytesToHex(digest.digest(toByteArray()))
+}
+
+private fun bytesToHex(hash: ByteArray): String {
+    val hexString = StringBuilder(2 * hash.size)
+    for (i in hash.indices) {
+        val hex = Integer.toHexString(0xff and hash[i].toInt())
+        if (hex.length == 1) {
+            hexString.append('0')
+        }
+        hexString.append(hex)
+    }
+    return hexString.toString()
 }
 
 object GlobalKomposer {
@@ -57,9 +88,9 @@ class Komposer(val id: String) {
     private val nodePool = KomposNodePool()
     private val operations = mutableListOf<TreeOperation>()
 
-    fun startNode(name: String) {
-        Log.d("yopta", "startNode $name")
-        operations.add(TreeOperation.StartNode(name))
+    fun startNode(name: String, key: String) {
+        Log.d("yopta", "startNode $name $key")
+        operations.add(TreeOperation.StartNode(name, key))
     }
 
     fun setMeasurePolicy(measurePolicy: KomposMeasurePolicy) {
@@ -88,7 +119,13 @@ class Komposer(val id: String) {
     }
 
     fun buildTree(): KomposNodePooled {
-        return operations.readNode(0).second!!
+        val rootNode = nodePool.get()
+        rootNode.name = "root"
+        val childNode = operations.readNode(0).second
+        if (childNode != null) {
+            rootNode.addChild(childNode)
+        }
+        return rootNode
     }
 
     private fun List<TreeOperation>.readNode(from: Int): Pair<Int, KomposNodePooled?> {
@@ -136,8 +173,7 @@ class Komposer(val id: String) {
     }
 
     private fun KomposNodePooled.apply(operation: TreeOperation.SetKomposifier) {
-        visualizer = operation.komposifier
-            .createVisualizer(DefaultKomposNodeVisualizer)
+        komposifier = operation.komposifier
     }
 
     private fun KomposNodePooled.apply(operation: TreeOperation.SetMeasurePolicy) {
@@ -145,7 +181,7 @@ class Komposer(val id: String) {
     }
 
     private sealed interface TreeOperation {
-        class StartNode(val name: String) : TreeOperation
+        class StartNode(val name: String, val key: String) : TreeOperation
         class SetMeasurePolicy(val measurePolicy: KomposMeasurePolicy) : TreeOperation
         class SetKomposifier(val komposifier: Komposifier) : TreeOperation
         object EndNode : TreeOperation

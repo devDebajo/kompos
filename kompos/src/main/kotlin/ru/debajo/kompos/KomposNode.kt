@@ -34,8 +34,13 @@ class KomposNodePool {
 class KomposNodePooled : KomposDensity {
     var density: KomposDensity = DefaultKomposDensity
     var name: String = ""
-    var visualizer: KomposNodeVisualizer = DefaultKomposNodeVisualizer
+    var komposifier: Komposifier = Komposifier
+        set(value) {
+            field = value
+            visualizer = komposifier.createVisualizer(DefaultKomposNodeVisualizer)
+        }
     var childMeasurePolicy: KomposMeasurePolicy = DefaultKomposMeasurePolicy
+    private var visualizer: KomposNodeVisualizer = DefaultKomposNodeVisualizer
 
     private val nestedNodes: MutableList<KomposNodePooled> = mutableListOf()
 
@@ -101,14 +106,34 @@ class KomposNodePooled : KomposDensity {
         return with(density) { getDrawable(id) }
     }
 
-    override fun toString(): String = "KomposNode($name)"
-
     fun clear() {
         density = DefaultKomposDensity
         name = ""
-        visualizer = DefaultKomposNodeVisualizer
+        komposifier = Komposifier
         childMeasurePolicy = DefaultKomposMeasurePolicy
         nestedNodes.clear()
+    }
+
+    override fun toString(): String = "KomposNodePooled($name)"
+
+    fun format(depth: Int): String {
+        return buildString {
+            appendLine("${createIndent(depth)}KomposNodePooled(")
+            appendLine("${createIndent(depth + 1)}name = $name,")
+            appendLine("${createIndent(depth + 1)}komposifier = $komposifier,")
+            if (nestedNodes.isNotEmpty()) {
+                appendLine("${createIndent(depth + 1)}children = [")
+                for (nestedNode in nestedNodes) {
+                    appendLine(nestedNode.format(depth + 2))
+                }
+                appendLine("${createIndent(depth + 1)}]")
+            }
+            append("${createIndent(depth)})")
+        }
+    }
+
+    private fun createIndent(depth: Int): String {
+        return "    ".repeat(depth)
     }
 
     private fun asMeasurableInternal(): KomposMeasurable {
