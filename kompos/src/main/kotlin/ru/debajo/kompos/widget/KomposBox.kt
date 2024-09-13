@@ -3,18 +3,18 @@ package ru.debajo.kompos.widget
 import ru.debajo.kompos.KomposScope
 import ru.debajo.kompos.constrainHeight
 import ru.debajo.kompos.constrainWidth
-import ru.debajo.kompos.komposifier.Komposifier
 import ru.debajo.kompos.layout
+import ru.debajo.kompos.spek.Spek
 import kotlin.math.roundToInt
 
 fun KomposScope.box(
-    komposifier: Komposifier = Komposifier,
+    spek: Spek = Spek,
     contentVerticalAlignment: KomposAlignment = KomposAlignment.Start,
     contentHorizontalAlignment: KomposAlignment = KomposAlignment.Start,
     content: KomposScope.() -> Unit = {},
 ) {
     layout(
-        komposifier = komposifier,
+        spek = spek,
         content = content,
         name = "box",
     ) { measurables, constraints ->

@@ -10,29 +10,29 @@ import ru.debajo.kompos.KomposRenderScope
 import ru.debajo.kompos.KomposScope
 import ru.debajo.kompos.constrainHeight
 import ru.debajo.kompos.constrainWidth
-import ru.debajo.kompos.komposifier.KomposNodeVisualizer
-import ru.debajo.kompos.komposifier.Komposifier
-import ru.debajo.kompos.komposifier.then
 import ru.debajo.kompos.layout
+import ru.debajo.kompos.spek.KomposNodeVisualizer
+import ru.debajo.kompos.spek.Spek
+import ru.debajo.kompos.spek.then
 
 fun KomposScope.drawable(
     id: Int,
-    komposifier: Komposifier = Komposifier,
+    spek: Spek = Spek,
 ) {
     layout(
-        komposifier = komposifier.then(DrawableKomposifier(getDrawable(id))),
+        spek = spek.then(DrawableSpek(getDrawable(id))),
         name = "drawable",
         content = {},
         measurePolicy = DefaultKomposMeasurePolicy
     )
 }
 
-private class DrawableKomposifier(private val drawable: Drawable) : Komposifier {
+private class DrawableSpek(private val drawable: Drawable) : Spek {
     override fun createVisualizer(outer: KomposNodeVisualizer): KomposNodeVisualizer {
         return outer.then(DrawableVisualizer(drawable))
     }
 
-    override fun toString(): String = "DrawableKomposifier"
+    override fun toString(): String = "DrawableSpek"
 }
 
 private class DrawableVisualizer(private val drawable: Drawable) : KomposNodeVisualizer {

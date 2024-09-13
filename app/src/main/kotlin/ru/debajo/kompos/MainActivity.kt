@@ -4,9 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.ui.viewinterop.AndroidView
-import ru.debajo.kompos.komposifier.Komposifier
-import ru.debajo.kompos.komposifier.height
-import ru.debajo.kompos.komposifier.padding
+import ru.debajo.kompos.spek.Spek
+import ru.debajo.kompos.spek.height
+import ru.debajo.kompos.spek.padding
 import ru.debajo.kompos.widget.KomposAlignment
 import ru.debajo.kompos.widget.box
 import ru.debajo.kompos.widget.column
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
 //        box(
 //            contentVerticalAlignment = KomposAlignment.Center,
 //            contentHorizontalAlignment = KomposAlignment.Center,
-//            komposifier = Komposifier
+//            spek = Spek
 //                .size(47.kdp)
 //                .background(Kolor.Black)
 //        ) {
@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     text("text1", textSize = 30.ksp)
                     text(
                         "text2",
-                        komposifier = Komposifier
+                        spek = Spek
                             .clip(KomposRoundedCornerShape(10.kdp))
                             .background(Kolor.Red)
                             .padding(8.kdp)
@@ -61,14 +61,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun KomposScope.button(
-        komposifier: Komposifier = Komposifier,
+        spek: Spek = Spek,
         text: String,
         onClick: () -> Unit
     ) {
         box(
             contentVerticalAlignment = KomposAlignment.Center,
             contentHorizontalAlignment = KomposAlignment.Start,
-            komposifier = komposifier
+            spek = spek
                 .height(40.kdp)
                 .clip(KomposRoundedCornerShape(8.kdp))
                 .background(Kolor.Gray)

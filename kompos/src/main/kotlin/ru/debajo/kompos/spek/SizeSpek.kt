@@ -1,10 +1,10 @@
-package ru.debajo.kompos.komposifier
+package ru.debajo.kompos.spek
 
 import ru.debajo.kompos.KDp
 import ru.debajo.kompos.KomposConstraints
 import ru.debajo.kompos.layout
 
-fun Komposifier.size(width: KDp, height: KDp = width): Komposifier {
+fun Spek.size(width: KDp, height: KDp = width): Spek {
     return layout { measurable, _ ->
         val placeable = measurable.measure(
             KomposConstraints.exact(width.roundToPx(), height.roundToPx())
@@ -15,7 +15,7 @@ fun Komposifier.size(width: KDp, height: KDp = width): Komposifier {
     }
 }
 
-fun Komposifier.width(width: KDp): Komposifier {
+fun Spek.width(width: KDp): Spek {
     return layout { measurable, constraints ->
         val placeable = measurable.measure(
             constraints.copy(minWidth = width.roundToPx(), maxWidth = width.roundToPx())
@@ -26,7 +26,7 @@ fun Komposifier.width(width: KDp): Komposifier {
     }
 }
 
-fun Komposifier.height(height: KDp): Komposifier {
+fun Spek.height(height: KDp): Spek {
     return layout { measurable, constraints ->
         val placeable = measurable.measure(
             constraints.copy(minHeight = height.roundToPx(), maxHeight = height.roundToPx())

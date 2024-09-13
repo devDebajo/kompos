@@ -1,4 +1,4 @@
-package ru.debajo.kompos.komposifier
+package ru.debajo.kompos.spek
 
 import androidx.core.graphics.withTranslation
 import ru.debajo.kompos.DefaultKomposSingleMeasurePolicy

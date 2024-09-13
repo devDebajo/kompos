@@ -4,10 +4,10 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import androidx.core.graphics.withClip
-import ru.debajo.kompos.komposifier.KomposNodeVisualizer
-import ru.debajo.kompos.komposifier.KomposRenderActionVisualizer
-import ru.debajo.kompos.komposifier.Komposifier
-import ru.debajo.kompos.komposifier.then
+import ru.debajo.kompos.spek.KomposNodeVisualizer
+import ru.debajo.kompos.spek.KomposRenderActionVisualizer
+import ru.debajo.kompos.spek.Spek
+import ru.debajo.kompos.spek.then
 import java.lang.ref.WeakReference
 
 fun interface KomposRenderAction {
@@ -72,7 +72,7 @@ object EmptyKomposRenderAction : KomposRenderAction {
     override fun KomposRenderScope.render() = Unit
 }
 
-fun Komposifier.clip(shape: KomposShape): Komposifier {
+fun Spek.clip(shape: KomposShape): Spek {
     return drawWithContent {
         val path = with(shape) { createPath(size) }
         canvas.withClip(path) {
@@ -81,7 +81,7 @@ fun Komposifier.clip(shape: KomposShape): Komposifier {
     }
 }
 
-fun Komposifier.background(color: Kolor): Komposifier {
+fun Spek.background(color: Kolor): Spek {
     return drawWithContent {
         val paint = Paint()
         paint.color = color.argb
@@ -90,13 +90,13 @@ fun Komposifier.background(color: Kolor): Komposifier {
     }
 }
 
-fun Komposifier.drawWithContent(draw: KomposRenderAction): Komposifier {
-    return then(RenderKomposifier(draw))
+fun Spek.drawWithContent(draw: KomposRenderAction): Spek {
+    return then(RenderSpek(draw))
 }
 
-private class RenderKomposifier(
+private class RenderSpek(
     private val delegatedRenderAction: KomposRenderAction,
-) : Komposifier {
+) : Spek {
     override fun createVisualizer(outer: KomposNodeVisualizer): KomposNodeVisualizer {
         return KomposRenderActionVisualizer(
             delegate = outer,
@@ -104,5 +104,5 @@ private class RenderKomposifier(
         )
     }
 
-    override fun toString(): String = "RenderKomposifier"
+    override fun toString(): String = "RenderSpek"
 }

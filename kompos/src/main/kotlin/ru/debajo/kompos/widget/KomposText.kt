@@ -13,11 +13,11 @@ import ru.debajo.kompos.KomposMeasureResult
 import ru.debajo.kompos.KomposMeasureScope
 import ru.debajo.kompos.KomposRenderScope
 import ru.debajo.kompos.KomposScope
-import ru.debajo.kompos.komposifier.KomposNodeVisualizer
-import ru.debajo.kompos.komposifier.Komposifier
-import ru.debajo.kompos.komposifier.then
 import ru.debajo.kompos.ksp
 import ru.debajo.kompos.layout
+import ru.debajo.kompos.spek.KomposNodeVisualizer
+import ru.debajo.kompos.spek.Spek
+import ru.debajo.kompos.spek.then
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -25,24 +25,24 @@ fun KomposScope.text(
     text: String,
     color: Kolor = Kolor.Black,
     textSize: KSp = 14.ksp,
-    komposifier: Komposifier = Komposifier,
+    spek: Spek = Spek,
 ) {
     layout(
         name = "text",
-        komposifier = komposifier.then(
-            TextKomposifier(TextKomposVisualizer(text, color, textSize.toPx()))
+        spek = spek.then(
+            TextSpek(TextKomposVisualizer(text, color, textSize.toPx()))
         ),
         content = {},
         measurePolicy = DefaultKomposMeasurePolicy
     )
 }
 
-private class TextKomposifier(private val visualizer: TextKomposVisualizer) : Komposifier {
+private class TextSpek(private val visualizer: TextKomposVisualizer) : Spek {
     override fun createVisualizer(outer: KomposNodeVisualizer): KomposNodeVisualizer {
         return outer.then(visualizer)
     }
 
-    override fun toString(): String = "TextKomposifier"
+    override fun toString(): String = "TextSpek"
 }
 
 private class TextKomposVisualizer(

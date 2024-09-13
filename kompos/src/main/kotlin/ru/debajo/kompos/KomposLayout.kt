@@ -1,17 +1,17 @@
 package ru.debajo.kompos
 
-import ru.debajo.kompos.komposifier.Komposifier
+import ru.debajo.kompos.spek.Spek
 import java.security.MessageDigest
 import java.util.UUID
 
 fun KomposScope.layout(
-    komposifier: Komposifier = Komposifier,
+    spek: Spek = Spek,
     name: String,
     content: KomposScope.() -> Unit,
     measurePolicy: KomposMeasurePolicy,
 ) {
     newNode(
-        komposifier = komposifier,
+        spek = spek,
         name = name,
         content = content,
         measurePolicy = measurePolicy,
@@ -19,7 +19,7 @@ fun KomposScope.layout(
 }
 
 fun KomposScope.newNode(
-    komposifier: Komposifier = Komposifier,
+    spek: Spek = Spek,
     name: String,
     content: KomposScope.() -> Unit = {},
     measurePolicy: KomposMeasurePolicy = DefaultKomposMeasurePolicy,
@@ -27,7 +27,7 @@ fun KomposScope.newNode(
     val nodeKey = getCurrentNodeUniqueKey()
     currentKomposer.startNode(name, nodeKey)
     currentKomposer.setMeasurePolicy(measurePolicy)
-    currentKomposer.setKomposifier(komposifier)
+    currentKomposer.setSpek(spek)
     currentKomposer.startGroup()
     content()
     currentKomposer.endGroup()
@@ -100,8 +100,8 @@ class Komposer(
         operations.add(TreeOperation.SetMeasurePolicy(measurePolicy))
     }
 
-    fun setKomposifier(komposifier: Komposifier) {
-        operations.add(TreeOperation.SetKomposifier(komposifier))
+    fun setSpek(spek: Spek) {
+        operations.add(TreeOperation.SetSpek(spek))
     }
 
     fun endNode() {
@@ -143,7 +143,7 @@ class Komposer(
                     }
                 }
 
-                is TreeOperation.SetKomposifier -> node!!.apply(operation)
+                is TreeOperation.SetSpek -> node!!.apply(operation)
                 is TreeOperation.SetMeasurePolicy -> node!!.apply(operation)
                 is TreeOperation.StartGroup -> {
                     readingGroup = true
@@ -168,8 +168,8 @@ class Komposer(
         error("Node not ended")
     }
 
-    private fun KomposNode.apply(operation: TreeOperation.SetKomposifier) {
-        komposifier = operation.komposifier
+    private fun KomposNode.apply(operation: TreeOperation.SetSpek) {
+        spek = operation.spek
     }
 
     private fun KomposNode.apply(operation: TreeOperation.SetMeasurePolicy) {
@@ -179,7 +179,7 @@ class Komposer(
     private sealed interface TreeOperation {
         class StartNode(val name: String, val key: String) : TreeOperation
         class SetMeasurePolicy(val measurePolicy: KomposMeasurePolicy) : TreeOperation
-        class SetKomposifier(val komposifier: Komposifier) : TreeOperation
+        class SetSpek(val spek: Spek) : TreeOperation
         object EndNode : TreeOperation
         object StartGroup : TreeOperation
         object EndGroup : TreeOperation

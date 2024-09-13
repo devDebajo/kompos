@@ -1,15 +1,15 @@
 package ru.debajo.kompos.widget
 
 import ru.debajo.kompos.KomposScope
-import ru.debajo.kompos.komposifier.Komposifier
 import ru.debajo.kompos.layout
+import ru.debajo.kompos.spek.Spek
 
 fun KomposScope.column(
-    komposifier: Komposifier = Komposifier,
+    spek: Spek = Spek,
     content: KomposScope.() -> Unit,
 ) {
     layout(
-        komposifier = komposifier,
+        spek = spek,
         content = content,
         name = "column",
     ) { measurables, constraints ->

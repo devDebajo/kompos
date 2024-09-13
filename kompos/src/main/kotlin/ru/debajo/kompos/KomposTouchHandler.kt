@@ -1,9 +1,9 @@
 package ru.debajo.kompos
 
-import ru.debajo.kompos.komposifier.KomposMeasureResultVisualizer
-import ru.debajo.kompos.komposifier.KomposNodeVisualizer
-import ru.debajo.kompos.komposifier.Komposifier
-import ru.debajo.kompos.komposifier.then
+import ru.debajo.kompos.spek.KomposMeasureResultVisualizer
+import ru.debajo.kompos.spek.KomposNodeVisualizer
+import ru.debajo.kompos.spek.Spek
+import ru.debajo.kompos.spek.then
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -13,10 +13,10 @@ interface KomposTouchHandler {
 
 object EmptyKomposTouchHandler : KomposTouchHandler
 
-fun Komposifier.clickable(
+fun Spek.clickable(
     enabled: Boolean = true,
     onClick: () -> Unit,
-): Komposifier {
+): Spek {
     if (!enabled) {
         return this
     }
@@ -57,13 +57,13 @@ fun Komposifier.clickable(
     }
 }
 
-fun Komposifier.touchEvents(onTouchEvent: (KomposTouchEvent) -> Boolean): Komposifier {
-    return then(TouchEventsKomposifier(onTouchEvent))
+fun Spek.touchEvents(onTouchEvent: (KomposTouchEvent) -> Boolean): Spek {
+    return then(TouchEventsSpek(onTouchEvent))
 }
 
-private class TouchEventsKomposifier(
+private class TouchEventsSpek(
     private val onTouchEvent: (KomposTouchEvent) -> Boolean
-) : Komposifier {
+) : Spek {
     override fun createVisualizer(outer: KomposNodeVisualizer): KomposNodeVisualizer {
         return TouchEventsVisualizer(outer, onTouchEvent)
     }

@@ -1,4 +1,4 @@
-package ru.debajo.kompos.komposifier
+package ru.debajo.kompos.spek
 
 import ru.debajo.kompos.KDp
 import ru.debajo.kompos.constrainHeight
@@ -7,12 +7,12 @@ import ru.debajo.kompos.kdp
 import ru.debajo.kompos.layout
 import ru.debajo.kompos.offset
 
-fun Komposifier.padding(
+fun Spek.padding(
     left: KDp = 0.kdp,
     top: KDp = 0.kdp,
     right: KDp = 0.kdp,
     bottom: KDp = 0.kdp,
-): Komposifier {
+): Spek {
     return layout { measurable, constraints ->
         val horizontal = left.roundToPx() + right.roundToPx()
         val vertical = top.roundToPx() + bottom.roundToPx()
@@ -27,10 +27,10 @@ fun Komposifier.padding(
     }
 }
 
-fun Komposifier.padding(
+fun Spek.padding(
     vertical: KDp = 0.kdp,
     horizontal: KDp = 0.kdp,
-): Komposifier {
+): Spek {
     return padding(
         left = horizontal,
         top = vertical,
@@ -39,6 +39,6 @@ fun Komposifier.padding(
     )
 }
 
-fun Komposifier.padding(all: KDp): Komposifier {
+fun Spek.padding(all: KDp): Spek {
     return padding(left = all, top = all, right = all, bottom = all)
 }

@@ -1,21 +1,21 @@
-package ru.debajo.kompos.komposifier
+package ru.debajo.kompos.spek
 
 import ru.debajo.kompos.KomposConstraints
 import ru.debajo.kompos.layout
 
-fun Komposifier.fillMaxWidth(): Komposifier {
+fun Spek.fillMaxWidth(): Spek {
     return fillMaxMeasurement(FillDirection.Horizontal)
 }
 
-fun Komposifier.fillMaxHeight(): Komposifier {
+fun Spek.fillMaxHeight(): Spek {
     return fillMaxMeasurement(FillDirection.Vertical)
 }
 
-fun Komposifier.fillMaxSize(): Komposifier {
+fun Spek.fillMaxSize(): Spek {
     return fillMaxMeasurement(FillDirection.Both)
 }
 
-private fun Komposifier.fillMaxMeasurement(direction: FillDirection): Komposifier {
+private fun Spek.fillMaxMeasurement(direction: FillDirection): Spek {
     return layout { measurable, constraints ->
         val minWidth: Int
         val maxWidth: Int

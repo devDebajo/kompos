@@ -2,11 +2,11 @@ package ru.debajo.kompos
 
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import ru.debajo.kompos.komposifier.DefaultKomposNodeVisualizer
-import ru.debajo.kompos.komposifier.KomposMeasurePolicyVisualizer
-import ru.debajo.kompos.komposifier.KomposNodeVisualizer
-import ru.debajo.kompos.komposifier.Komposifier
-import ru.debajo.kompos.komposifier.then
+import ru.debajo.kompos.spek.DefaultKomposNodeVisualizer
+import ru.debajo.kompos.spek.KomposMeasurePolicyVisualizer
+import ru.debajo.kompos.spek.KomposNodeVisualizer
+import ru.debajo.kompos.spek.Spek
+import ru.debajo.kompos.spek.then
 
 class KomposNode : KomposDensity {
     private var density: KomposDensity = DefaultKomposDensity
@@ -17,10 +17,10 @@ class KomposNode : KomposDensity {
     var key: String = ""
         private set
 
-    var komposifier: Komposifier = Komposifier
+    var spek: Spek = Spek
         set(value) {
             field = value
-            visualizer = komposifier.createVisualizer(DefaultKomposNodeVisualizer)
+            visualizer = spek.createVisualizer(DefaultKomposNodeVisualizer)
         }
     var childMeasurePolicy: KomposMeasurePolicy = DefaultKomposMeasurePolicy
     private var visualizer: KomposNodeVisualizer = DefaultKomposNodeVisualizer
@@ -99,7 +99,7 @@ class KomposNode : KomposDensity {
         density = DefaultKomposDensity
         name = ""
         key = ""
-        komposifier = Komposifier
+        spek = Spek
         childMeasurePolicy = DefaultKomposMeasurePolicy
         nestedNodes.clear()
     }
@@ -111,7 +111,7 @@ class KomposNode : KomposDensity {
             appendLine("${createIndent(depth)}KomposNode(")
             appendLine("${createIndent(depth + 1)}name = $name,")
             appendLine("${createIndent(depth + 1)}key = $key,")
-            appendLine("${createIndent(depth + 1)}komposifier = $komposifier,")
+            appendLine("${createIndent(depth + 1)}spek = $spek,")
             if (nestedNodes.isNotEmpty()) {
                 appendLine("${createIndent(depth + 1)}children = [")
                 for (nestedNode in nestedNodes) {
@@ -289,13 +289,13 @@ class KomposMeasureResultImpl(
     }
 }
 
-fun Komposifier.layout(measure: KomposSingleMeasurePolicy): Komposifier {
-    return then(MeasureKomposifier(measure))
+fun Spek.layout(measure: KomposSingleMeasurePolicy): Spek {
+    return then(MeasureSpek(measure))
 }
 
-private class MeasureKomposifier(
+private class MeasureSpek(
     private val delegatedMeasurePolicy: KomposSingleMeasurePolicy
-) : Komposifier {
+) : Spek {
     override fun createVisualizer(outer: KomposNodeVisualizer): KomposNodeVisualizer {
         return KomposMeasurePolicyVisualizer(
             delegate = outer,
@@ -303,5 +303,5 @@ private class MeasureKomposifier(
         )
     }
 
-    override fun toString(): String = "MeasureKomposifier"
+    override fun toString(): String = "MeasureSpek"
 }
