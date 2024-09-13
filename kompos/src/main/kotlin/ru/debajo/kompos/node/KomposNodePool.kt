@@ -1,11 +1,13 @@
-package ru.debajo.kompos
+package ru.debajo.kompos.node
 
-class KomposNodePool {
+import ru.debajo.kompos.KomposDensity
+
+internal class KomposNodePool {
 
     private val free: HashSet<KomposNode> = HashSet()
     private val buzy: HashSet<KomposNode> = HashSet()
 
-    fun get(density: KomposDensity, name: String, key: String): KomposNode {
+    fun get(density: KomposDensity, name: String, key: KomposNodeKey): KomposNode {
         if (free.isEmpty()) {
             return KomposNode().also {
                 it.inflate(density, name, key)

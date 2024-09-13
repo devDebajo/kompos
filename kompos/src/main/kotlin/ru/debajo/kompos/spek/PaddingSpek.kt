@@ -4,7 +4,7 @@ import ru.debajo.kompos.KDp
 import ru.debajo.kompos.constrainHeight
 import ru.debajo.kompos.constrainWidth
 import ru.debajo.kompos.kdp
-import ru.debajo.kompos.layout
+import ru.debajo.kompos.node.layout
 import ru.debajo.kompos.offset
 
 fun Spek.padding(

@@ -1,20 +1,29 @@
-package ru.debajo.kompos
+package ru.debajo.kompos.node
 
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import ru.debajo.kompos.DefaultKomposDensity
+import ru.debajo.kompos.KDp
+import ru.debajo.kompos.KSp
+import ru.debajo.kompos.KomposConstraints
+import ru.debajo.kompos.KomposDensity
+import ru.debajo.kompos.KomposPosition
+import ru.debajo.kompos.KomposSize
+import ru.debajo.kompos.KomposTouchEvent
+import ru.debajo.kompos.MutableKomposRenderScope
 import ru.debajo.kompos.spek.DefaultKomposNodeVisualizer
 import ru.debajo.kompos.spek.KomposMeasurePolicyVisualizer
 import ru.debajo.kompos.spek.KomposNodeVisualizer
 import ru.debajo.kompos.spek.Spek
 import ru.debajo.kompos.spek.then
 
-class KomposNode : KomposDensity {
+internal class KomposNode : KomposDensity {
     private var density: KomposDensity = DefaultKomposDensity
 
     var name: String = ""
         private set
 
-    var key: String = ""
+    var key: KomposNodeKey = KomposNodeKey.Empty
         private set
 
     var spek: Spek = Spek
@@ -37,7 +46,7 @@ class KomposNode : KomposDensity {
         }
     }
 
-    fun inflate(density: KomposDensity, name: String, key: String) {
+    fun inflate(density: KomposDensity, name: String, key: KomposNodeKey) {
         this.density = density
         this.name = name
         this.key = key
@@ -98,7 +107,7 @@ class KomposNode : KomposDensity {
     fun clear() {
         density = DefaultKomposDensity
         name = ""
-        key = ""
+        key = KomposNodeKey.Empty
         spek = Spek
         childMeasurePolicy = DefaultKomposMeasurePolicy
         nestedNodes.clear()
@@ -110,7 +119,7 @@ class KomposNode : KomposDensity {
         return buildString {
             appendLine("${createIndent(depth)}KomposNode(")
             appendLine("${createIndent(depth + 1)}name = $name,")
-            appendLine("${createIndent(depth + 1)}key = $key,")
+            appendLine("${createIndent(depth + 1)}key = ${key.key},")
             appendLine("${createIndent(depth + 1)}spek = $spek,")
             if (nestedNodes.isNotEmpty()) {
                 appendLine("${createIndent(depth + 1)}children = [")

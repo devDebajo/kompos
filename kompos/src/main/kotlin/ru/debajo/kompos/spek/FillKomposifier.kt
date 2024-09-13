@@ -1,7 +1,7 @@
 package ru.debajo.kompos.spek
 
 import ru.debajo.kompos.KomposConstraints
-import ru.debajo.kompos.layout
+import ru.debajo.kompos.node.layout
 
 fun Spek.fillMaxWidth(): Spek {
     return fillMaxMeasurement(FillDirection.Horizontal)

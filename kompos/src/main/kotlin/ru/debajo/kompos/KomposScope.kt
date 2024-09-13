@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import ru.debajo.kompos.node.KomposNode
 import kotlin.math.roundToInt
 
 interface KomposScope : KomposDensity {
@@ -21,7 +22,7 @@ class KomposView @JvmOverloads constructor(
 
     private var komposition: Komposition? = null
 
-    fun setContent(content: KomposScope.() -> Unit) {
+    fun describeUi(content: KomposScope.() -> Unit) {
         komposition = Komposition(
             // TODO getOrCreateComposer
             GlobalKomposer.newKomposer(KomposContextDensity(context)),

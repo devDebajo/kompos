@@ -1,16 +1,16 @@
 package ru.debajo.kompos.widget
 
 import android.graphics.drawable.Drawable
-import ru.debajo.kompos.DefaultKomposMeasurePolicy
 import ru.debajo.kompos.KomposConstraints
-import ru.debajo.kompos.KomposMeasurable
-import ru.debajo.kompos.KomposMeasureResult
-import ru.debajo.kompos.KomposMeasureScope
 import ru.debajo.kompos.KomposRenderScope
 import ru.debajo.kompos.KomposScope
 import ru.debajo.kompos.constrainHeight
 import ru.debajo.kompos.constrainWidth
 import ru.debajo.kompos.layout
+import ru.debajo.kompos.node.DefaultKomposMeasurePolicy
+import ru.debajo.kompos.node.KomposMeasurable
+import ru.debajo.kompos.node.KomposMeasureResult
+import ru.debajo.kompos.node.KomposMeasureScope
 import ru.debajo.kompos.spek.KomposNodeVisualizer
 import ru.debajo.kompos.spek.Spek
 import ru.debajo.kompos.spek.then

@@ -2,7 +2,7 @@ package ru.debajo.kompos.spek
 
 import ru.debajo.kompos.KDp
 import ru.debajo.kompos.KomposConstraints
-import ru.debajo.kompos.layout
+import ru.debajo.kompos.node.layout
 
 fun Spek.size(width: KDp, height: KDp = width): Spek {
     return layout { measurable, _ ->

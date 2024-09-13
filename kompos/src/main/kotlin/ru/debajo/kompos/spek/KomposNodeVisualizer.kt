@@ -1,22 +1,22 @@
 package ru.debajo.kompos.spek
 
 import androidx.core.graphics.withTranslation
-import ru.debajo.kompos.DefaultKomposSingleMeasurePolicy
 import ru.debajo.kompos.EmptyKomposRenderAction
 import ru.debajo.kompos.EmptyKomposTouchHandler
 import ru.debajo.kompos.KomposConstraints
-import ru.debajo.kompos.KomposMeasurable
-import ru.debajo.kompos.KomposMeasureResult
-import ru.debajo.kompos.KomposMeasureScope
 import ru.debajo.kompos.KomposPosition
 import ru.debajo.kompos.KomposRenderAction
 import ru.debajo.kompos.KomposRenderScope
-import ru.debajo.kompos.KomposSingleMeasurePolicy
 import ru.debajo.kompos.KomposSize
 import ru.debajo.kompos.KomposTouchHandler
 import ru.debajo.kompos.MutableKomposRenderScope
-import ru.debajo.kompos.asMeasurable
-import ru.debajo.kompos.size
+import ru.debajo.kompos.node.DefaultKomposSingleMeasurePolicy
+import ru.debajo.kompos.node.KomposMeasurable
+import ru.debajo.kompos.node.KomposMeasureResult
+import ru.debajo.kompos.node.KomposMeasureScope
+import ru.debajo.kompos.node.KomposSingleMeasurePolicy
+import ru.debajo.kompos.node.asMeasurable
+import ru.debajo.kompos.node.size
 
 interface KomposNodeVisualizer : KomposSingleMeasurePolicy, KomposRenderAction, KomposTouchHandler
 

@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AndroidView(factory = {
                 KomposView(it).apply {
-                    setContent { test() }
+                    describeUi { test() }
                 }
             })
         }
