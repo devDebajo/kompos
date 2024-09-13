@@ -23,5 +23,6 @@ class KomposNodePool {
             it.clear()
             free.add(it)
         }
+        buzy.clear()
     }
 }

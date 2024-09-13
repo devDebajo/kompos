@@ -1,6 +1,5 @@
 package ru.debajo.kompos
 
-import android.util.Log
 import ru.debajo.kompos.komposifier.Komposifier
 import java.security.MessageDigest
 import java.util.UUID
@@ -94,32 +93,26 @@ class Komposer(
     private val operations = mutableListOf<TreeOperation>()
 
     fun startNode(name: String, key: String) {
-        Log.d("yopta", "startNode $name $key")
         operations.add(TreeOperation.StartNode(name, key))
     }
 
     fun setMeasurePolicy(measurePolicy: KomposMeasurePolicy) {
-        Log.d("yopta", "setMeasurePolicy")
         operations.add(TreeOperation.SetMeasurePolicy(measurePolicy))
     }
 
     fun setKomposifier(komposifier: Komposifier) {
-        Log.d("yopta", "setKomposifier")
         operations.add(TreeOperation.SetKomposifier(komposifier))
     }
 
     fun endNode() {
-        Log.d("yopta", "endNode")
         operations.add(TreeOperation.EndNode)
     }
 
     fun startGroup() {
-        Log.d("yopta", "startGroup")
         operations.add(TreeOperation.StartGroup)
     }
 
     fun endGroup() {
-        Log.d("yopta", "endGroup")
         operations.add(TreeOperation.EndGroup)
     }
 
