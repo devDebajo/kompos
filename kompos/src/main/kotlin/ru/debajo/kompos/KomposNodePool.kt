@@ -2,15 +2,14 @@ package ru.debajo.kompos
 
 class KomposNodePool {
 
-    private val free: HashSet<KomposNodePooled> = HashSet()
-    private val buzy: HashSet<KomposNodePooled> = HashSet()
+    private val free: HashSet<KomposNode> = HashSet()
+    private val buzy: HashSet<KomposNode> = HashSet()
 
-    fun get(density: KomposDensity, name: String): KomposNodePooled {
+    fun get(density: KomposDensity, name: String, key: String): KomposNode {
         if (free.isEmpty()) {
-            return KomposNodePooled().also {
+            return KomposNode().also {
+                it.inflate(density, name, key)
                 buzy.add(it)
-                it.density = density
-                it.name = name
             }
         }
         val node = free.first()

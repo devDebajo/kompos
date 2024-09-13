@@ -90,7 +90,6 @@ class Komposer(
     val id: String,
     val density: KomposDensity,
 ) {
-
     private val nodePool = KomposNodePool()
     private val operations = mutableListOf<TreeOperation>()
 
@@ -124,8 +123,8 @@ class Komposer(
         operations.add(TreeOperation.EndGroup)
     }
 
-    fun buildTree(): KomposNodePooled {
-        val rootNode = nodePool.get(density, "root")
+    fun buildTree(): KomposNode {
+        val rootNode = nodePool.get(density, "root", "root_$id")
         val childNode = operations.readNode(0).second
         if (childNode != null) {
             rootNode.addChild(childNode)
@@ -133,10 +132,10 @@ class Komposer(
         return rootNode
     }
 
-    private fun List<TreeOperation>.readNode(from: Int): Pair<Int, KomposNodePooled?> {
+    private fun List<TreeOperation>.readNode(from: Int): Pair<Int, KomposNode?> {
         var index = from
         var readingGroup = false
-        var node: KomposNodePooled? = null
+        var node: KomposNode? = null
         while (index <= lastIndex) {
             when (val operation = this[index]) {
                 is TreeOperation.StartNode -> {
@@ -147,7 +146,7 @@ class Komposer(
                         }
                         index = lastIndex
                     } else {
-                        node = nodePool.get(density, operation.name)
+                        node = nodePool.get(density, operation.name, operation.key)
                     }
                 }
 
@@ -176,11 +175,11 @@ class Komposer(
         error("Node not ended")
     }
 
-    private fun KomposNodePooled.apply(operation: TreeOperation.SetKomposifier) {
+    private fun KomposNode.apply(operation: TreeOperation.SetKomposifier) {
         komposifier = operation.komposifier
     }
 
-    private fun KomposNodePooled.apply(operation: TreeOperation.SetMeasurePolicy) {
+    private fun KomposNode.apply(operation: TreeOperation.SetMeasurePolicy) {
         childMeasurePolicy = operation.measurePolicy
     }
 

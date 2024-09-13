@@ -8,9 +8,15 @@ import ru.debajo.kompos.komposifier.KomposNodeVisualizer
 import ru.debajo.kompos.komposifier.Komposifier
 import ru.debajo.kompos.komposifier.then
 
-class KomposNodePooled : KomposDensity {
-    var density: KomposDensity = DefaultKomposDensity
+class KomposNode : KomposDensity {
+    private var density: KomposDensity = DefaultKomposDensity
+
     var name: String = ""
+        private set
+
+    var key: String = ""
+        private set
+
     var komposifier: Komposifier = Komposifier
         set(value) {
             field = value
@@ -19,7 +25,7 @@ class KomposNodePooled : KomposDensity {
     var childMeasurePolicy: KomposMeasurePolicy = DefaultKomposMeasurePolicy
     private var visualizer: KomposNodeVisualizer = DefaultKomposNodeVisualizer
 
-    private val nestedNodes: MutableList<KomposNodePooled> = mutableListOf()
+    private val nestedNodes: MutableList<KomposNode> = mutableListOf()
 
     private val measureScope: KomposMeasureScopeImpl = KomposMeasureScopeImpl(this)
     private val renderScope: MutableKomposRenderScope = MutableKomposRenderScope {
@@ -31,13 +37,19 @@ class KomposNodePooled : KomposDensity {
         }
     }
 
+    fun inflate(density: KomposDensity, name: String, key: String) {
+        this.density = density
+        this.name = name
+        this.key = key
+    }
+
     fun draw(canvas: Canvas, size: KomposSize) {
         renderScope.size = size
         renderScope.configure(canvas, this)
         renderScope.drawContent()
     }
 
-    fun addChild(node: KomposNodePooled) {
+    fun addChild(node: KomposNode) {
         if (this === node) {
             error("could not add node in self")
         }
@@ -86,22 +98,24 @@ class KomposNodePooled : KomposDensity {
     fun clear() {
         density = DefaultKomposDensity
         name = ""
+        key = ""
         komposifier = Komposifier
         childMeasurePolicy = DefaultKomposMeasurePolicy
         nestedNodes.clear()
     }
 
-    override fun toString(): String = "KomposNodePooled($name)"
+    override fun toString(): String = "KomposNode($name)"
 
     fun format(depth: Int): String {
         return buildString {
-            appendLine("${createIndent(depth)}KomposNodePooled(")
+            appendLine("${createIndent(depth)}KomposNode(")
             appendLine("${createIndent(depth + 1)}name = $name,")
+            appendLine("${createIndent(depth + 1)}key = $key,")
             appendLine("${createIndent(depth + 1)}komposifier = $komposifier,")
             if (nestedNodes.isNotEmpty()) {
                 appendLine("${createIndent(depth + 1)}children = [")
                 for (nestedNode in nestedNodes) {
-                    appendLine(nestedNode.format(depth + 2))
+                    appendLine("${nestedNode.format(depth + 2)},")
                 }
                 appendLine("${createIndent(depth + 1)}]")
             }
@@ -116,7 +130,7 @@ class KomposNodePooled : KomposDensity {
     private fun asMeasurableInternal(): KomposMeasurable {
         return object : KomposMeasurable {
             override fun measure(constraints: KomposConstraints): KomposPlaceable {
-                val measureResult = this@KomposNodePooled.measure(constraints)
+                val measureResult = this@KomposNode.measure(constraints)
                 return asPlaceable(measureResult)
             }
         }

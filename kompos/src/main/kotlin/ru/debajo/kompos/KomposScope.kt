@@ -126,7 +126,7 @@ class Komposition(
     override val currentKomposer: Komposer,
 ) : KomposScope, KomposDensity by currentKomposer.density {
 
-    private var node: KomposNodePooled? = null
+    private var node: KomposNode? = null
 
     fun measure(constraints: KomposConstraints): KomposSize {
         val placeable = ensureNode().asMeasurable().measure(constraints)
@@ -146,7 +146,7 @@ class Komposition(
         Log.d("yopta", ensureNode().format(0))
     }
 
-    private fun ensureNode(): KomposNodePooled {
+    private fun ensureNode(): KomposNode {
         return node ?: currentKomposer.buildTree()
             .also { node = it }
     }
