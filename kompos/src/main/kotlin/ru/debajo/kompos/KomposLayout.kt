@@ -68,22 +68,28 @@ private fun bytesToHex(hash: ByteArray): String {
 object GlobalKomposer {
     private val komposers: MutableMap<String, Komposer> = HashMap()
 
-    fun newKomposer(): Komposer {
-        val newKomposer = Komposer(UUID.randomUUID().toString())
+    fun newKomposer(density: KomposDensity): Komposer {
+        val newKomposer = Komposer(
+            id = UUID.randomUUID().toString(),
+            density = density,
+        )
         komposers[newKomposer.id] = newKomposer
         return newKomposer
     }
 
-    fun getOrCreateComposer(id: String?): Komposer {
+    fun getOrCreateComposer(density: KomposDensity, id: String?): Komposer {
         return if (id == null) {
-            newKomposer()
+            newKomposer(density)
         } else {
-            komposers[id] ?: newKomposer()
+            komposers[id] ?: newKomposer(density)
         }
     }
 }
 
-class Komposer(val id: String) {
+class Komposer(
+    val id: String,
+    val density: KomposDensity,
+) {
 
     private val nodePool = KomposNodePool()
     private val operations = mutableListOf<TreeOperation>()
@@ -118,19 +124,16 @@ class Komposer(val id: String) {
         operations.add(TreeOperation.EndGroup)
     }
 
-    fun buildTree(density: KomposDensity): KomposNodePooled {
+    fun buildTree(): KomposNodePooled {
         val rootNode = nodePool.get(density, "root")
-        val childNode = operations.readNode(0, density).second
+        val childNode = operations.readNode(0).second
         if (childNode != null) {
             rootNode.addChild(childNode)
         }
         return rootNode
     }
 
-    private fun List<TreeOperation>.readNode(
-        from: Int,
-        density: KomposDensity
-    ): Pair<Int, KomposNodePooled?> {
+    private fun List<TreeOperation>.readNode(from: Int): Pair<Int, KomposNodePooled?> {
         var index = from
         var readingGroup = false
         var node: KomposNodePooled? = null
@@ -138,7 +141,7 @@ class Komposer(val id: String) {
             when (val operation = this[index]) {
                 is TreeOperation.StartNode -> {
                     if (readingGroup) {
-                        val (lastIndex, childNode) = readNode(from = index, density = density)
+                        val (lastIndex, childNode) = readNode(from = index)
                         if (childNode != null) {
                             node!!.addChild(childNode)
                         }
@@ -152,7 +155,7 @@ class Komposer(val id: String) {
                 is TreeOperation.SetMeasurePolicy -> node!!.apply(operation)
                 is TreeOperation.StartGroup -> {
                     readingGroup = true
-                    val (lastIndex, childNode) = readNode(from = index + 1, density = density)
+                    val (lastIndex, childNode) = readNode(from = index + 1)
                     if (childNode != null) {
                         node!!.addChild(childNode)
                     }

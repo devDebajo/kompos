@@ -23,13 +23,11 @@ class KomposView @JvmOverloads constructor(
 
     fun setContent(content: KomposScope.() -> Unit) {
         komposition = Komposition(
-            KomposContextDensity(context),
             // TODO getOrCreateComposer
-            GlobalKomposer.newKomposer(),
+            GlobalKomposer.newKomposer(KomposContextDensity(context)),
         )
 
         komposition!!.content()
-        komposition!!.printTree()
         requestLayout()
     }
 
@@ -125,9 +123,8 @@ class KomposView @JvmOverloads constructor(
 }
 
 class Komposition(
-    density: KomposDensity,
     override val currentKomposer: Komposer,
-) : KomposScope, KomposDensity by density {
+) : KomposScope, KomposDensity by currentKomposer.density {
 
     private var node: KomposNodePooled? = null
 
@@ -150,8 +147,7 @@ class Komposition(
     }
 
     private fun ensureNode(): KomposNodePooled {
-        return node ?: currentKomposer.buildTree(this).also {
-            node = it
-        }
+        return node ?: currentKomposer.buildTree()
+            .also { node = it }
     }
 }
