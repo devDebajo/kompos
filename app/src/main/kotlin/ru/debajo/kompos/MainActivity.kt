@@ -20,7 +20,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             AndroidView(factory = {
                 KomposView(it).apply {
-                    describeUi { test() }
+                    describeUi {
+                        // val testState by keep { mutableHolderOf(5) }
+                        test()
+                    }
                 }
             })
         }
