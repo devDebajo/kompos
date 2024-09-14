@@ -1,10 +1,12 @@
 package ru.debajo.kompos
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import ru.debajo.kompos.holder.getValue
 import ru.debajo.kompos.holder.mutableHolderOf
-import ru.debajo.kompos.keep.keep
 import ru.debajo.kompos.spek.Spek
 import ru.debajo.kompos.spek.height
 import ru.debajo.kompos.spek.padding
@@ -18,40 +20,37 @@ import kotlin.random.Random
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        val komposView1 = findViewById<KomposView>(R.id.kompos1)
+        val komposView2 = findViewById<KomposView>(R.id.kompos2)
 
-        val komposView = KomposView(this)
-        komposView.describeUi {
-            val keepedValue = keep { mutableHolderOf(Random.nextInt()) }
-            Log.d("yopta", "keepedValue $keepedValue")
-            test()
+        val counterHolder = mutableHolderOf(0)
+
+        komposView1.describeUi {
+            val counter by counterHolder
+            test(text = "Counter: $counter")
         }
-        setContentView(komposView)
-//        lifecycleScope.launch {
-//            while (true) {
-//                delay(5000)
-//                komposView.rekompose()
-//            }
-//        }
+
+        komposView2.describeUi {
+            val counter by counterHolder
+            test(text = "Counter: $counter")
+        }
+
+        lifecycleScope.launch {
+            while (true) {
+                delay(1000)
+                counterHolder.value = Random.nextInt()
+            }
+        }
     }
 
-    private fun KomposScope.test() {
-//        box(
-//            contentVerticalAlignment = KomposAlignment.Center,
-//            contentHorizontalAlignment = KomposAlignment.Center,
-//            spek = Spek
-//                .size(47.kdp)
-//                .background(Kolor.Black)
-//        ) {
-//            drawable(R.drawable.ic_launcher_foreground)
-//            text("test")
-//        }
-
+    private fun KomposScope.test(text: String) {
         box {
             column {
                 row {
                     text("text1", textSize = 30.ksp)
                     text(
-                        "text2",
+                        text = text,
                         spek = Spek
                             .clip(KomposRoundedCornerShape(10.kdp))
                             .background(Kolor.Red)

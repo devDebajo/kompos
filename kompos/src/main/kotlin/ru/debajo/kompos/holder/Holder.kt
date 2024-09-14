@@ -1,5 +1,6 @@
 package ru.debajo.kompos.holder
 
+import ru.debajo.kompos.GlobalKomposer
 import kotlin.reflect.KProperty
 
 interface Holder<T> {
@@ -22,12 +23,23 @@ operator fun <T> MutableHolder<T>.setValue(thisObj: Any?, property: KProperty<*>
 
 private class MutableHolderImpl<T>(initialValue: T) : MutableHolder<T> {
 
+    private val accessingSet: MutableSet<String> = HashSet()
+
     private var backingField: T = initialValue
 
     override var value: T
-        get() = backingField
+        get() {
+            val currentComposingId = GlobalKomposer.currentComposingId
+            if (currentComposingId != null) {
+                accessingSet.add(currentComposingId)
+            }
+            return backingField
+        }
         set(value) {
             backingField = value
+            for (komposerId in accessingSet) {
+                GlobalKomposer.notifyChanged(komposerId)
+            }
         }
 
     override fun toString(): String {

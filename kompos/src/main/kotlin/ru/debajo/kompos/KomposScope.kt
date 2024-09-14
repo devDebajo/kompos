@@ -18,14 +18,15 @@ class KomposView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
-) : View(context, attrs, defStyleAttr) {
+) : View(context, attrs, defStyleAttr), KomposRenderSizeEffect {
 
     private var komposition: Komposition? = null
 
     fun describeUi(content: KomposScope.() -> Unit) {
         komposition = Komposition(
             // TODO getOrCreateComposer
-            GlobalKomposer.newKomposer(KomposContextDensity(context)),
+            currentKomposer = GlobalKomposer.newKomposer(KomposContextDensity(context)),
+            renderSizeEffect = this,
         )
 
         komposition!!.content = content
@@ -125,19 +126,44 @@ class KomposView @JvmOverloads constructor(
             super.onTouchEvent(event)
         }
     }
+
+    override fun redraw() {
+        invalidate()
+    }
+
+    override fun onSizeChanged() {
+        requestLayout()
+        invalidate()
+    }
+}
+
+interface KomposRenderSizeEffect {
+    fun redraw()
+
+    fun onSizeChanged()
 }
 
 class Komposition(
     override val currentKomposer: Komposer,
-) : KomposScope, KomposDensity by currentKomposer.density {
+    private val renderSizeEffect: KomposRenderSizeEffect,
+) : KomposScope,
+    KomposDensity by currentKomposer.density,
+    KomposRenderSizeEffect by renderSizeEffect {
 
     private var node: KomposNode? = null
 
     var content: KomposScope.() -> Unit = {}
 
+    init {
+        currentKomposer.onChangedListener = {
+            rekompose()
+        }
+    }
+
     fun rekompose() {
         node = null
-        ensureNode()
+        node = ensureNode()
+        onSizeChanged()
     }
 
     fun measure(constraints: KomposConstraints): KomposSize {

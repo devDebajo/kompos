@@ -15,6 +15,7 @@ internal class KomposNodePool {
             }
         }
         val node = free.first()
+        node.inflate(density, name, key)
         free.remove(node)
         buzy.add(node)
         return node

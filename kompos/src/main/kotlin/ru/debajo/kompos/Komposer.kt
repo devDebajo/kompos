@@ -10,18 +10,25 @@ import java.util.UUID
 class Komposer(
     internal val id: String,
     internal val density: KomposDensity,
+    private val komposingListener: (String, Boolean) -> Unit,
 ) {
-    private val nodePool = KomposNodePool()
+    private val nodePool: KomposNodePool = KomposNodePool()
     private val operations = mutableListOf<TreeOperation>()
     private val keepMap: MutableMap<String, KeepBucket> = HashMap()
 
     private var lastKomposingNodeKey: KomposCallKey? = null
 
+    var onChangedListener: () -> Unit = {}
+
     internal fun startKomposing() {
+        operations.clear()
+        nodePool.recycleAll()
+        komposingListener(id, true)
         lastKomposingNodeKey = KomposCallKey.root(this)
     }
 
     internal fun endKomposing() {
+        komposingListener(id, false)
         lastKomposingNodeKey = null
     }
 
@@ -121,6 +128,10 @@ class Komposer(
         return "keep_key_${nodeCallKey.key}_${keepCallKey.key}"
     }
 
+    fun onChanged() {
+        onChangedListener()
+    }
+
     private class KeepBucket {
         private var cachedKey: Any? = NoValue
         private var cachedValue: Any? = NoValue
@@ -157,22 +168,49 @@ class Komposer(
 }
 
 object GlobalKomposer {
+    internal var currentComposingId: String? = null
+        private set
     private val komposers: MutableMap<String, Komposer> = HashMap()
 
     internal fun newKomposer(density: KomposDensity): Komposer {
         val newKomposer = Komposer(
             id = UUID.randomUUID().toString(),
             density = density,
+            komposingListener = ::onKomposing,
         )
         komposers[newKomposer.id] = newKomposer
         return newKomposer
     }
 
-    internal fun getOrCreateComposer(density: KomposDensity, id: String?): Komposer {
+    internal fun getOrCreateComposer(
+        density: KomposDensity,
+        id: String?,
+    ): Komposer {
         return if (id == null) {
-            newKomposer(density)
+            newKomposer(density = density)
         } else {
-            komposers[id] ?: newKomposer(density)
+            komposers[id] ?: newKomposer(density = density)
+        }
+    }
+
+    fun notifyChanged(komposerId: String) {
+        komposers[komposerId]?.onChanged()
+    }
+
+    private fun onKomposing(komposerId: String, composing: Boolean) {
+        if (composing) {
+            if (currentComposingId != null) {
+                error("Simultanious komposing")
+            }
+            currentComposingId = komposerId
+        } else {
+            if (currentComposingId == null) {
+                error("Komposing not started")
+            }
+            if (currentComposingId != komposerId) {
+                error("Stop komposing for another komposer")
+            }
+            currentComposingId = null
         }
     }
 }
