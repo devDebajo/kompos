@@ -21,7 +21,16 @@ operator fun <T> MutableHolder<T>.setValue(thisObj: Any?, property: KProperty<*>
 }
 
 private class MutableHolderImpl<T>(initialValue: T) : MutableHolder<T> {
+
+    private var backingField: T = initialValue
+
     override var value: T
-        get() = TODO("Not yet implemented")
-        set(value) {}
+        get() = backingField
+        set(value) {
+            backingField = value
+        }
+
+    override fun toString(): String {
+        return "MutableHolderImpl(value=$backingField)"
+    }
 }

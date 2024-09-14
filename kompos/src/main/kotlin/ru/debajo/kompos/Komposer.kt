@@ -1,8 +1,8 @@
 package ru.debajo.kompos
 
+import ru.debajo.kompos.node.KomposCallKey
 import ru.debajo.kompos.node.KomposMeasurePolicy
 import ru.debajo.kompos.node.KomposNode
-import ru.debajo.kompos.node.KomposNodeKey
 import ru.debajo.kompos.node.KomposNodePool
 import ru.debajo.kompos.spek.Spek
 import java.util.UUID
@@ -13,8 +13,20 @@ class Komposer(
 ) {
     private val nodePool = KomposNodePool()
     private val operations = mutableListOf<TreeOperation>()
+    private val keepMap: MutableMap<String, KeepBucket> = HashMap()
 
-    internal fun startNode(name: String, key: KomposNodeKey) {
+    private var lastKomposingNodeKey: KomposCallKey? = null
+
+    internal fun startKomposing() {
+        lastKomposingNodeKey = KomposCallKey.root(this)
+    }
+
+    internal fun endKomposing() {
+        lastKomposingNodeKey = null
+    }
+
+    internal fun startNode(name: String, key: KomposCallKey) {
+        lastKomposingNodeKey = key
         operations.add(TreeOperation.StartNode(name, key))
     }
 
@@ -38,8 +50,15 @@ class Komposer(
         operations.add(TreeOperation.EndGroup)
     }
 
+    @Suppress("UNCHECKED_CAST")
+    internal fun <T> keep(keepCallKey: KomposCallKey, key: Any, block: () -> T): T {
+        val keepKey = createKeepKey(lastKomposingNodeKey!!, keepCallKey)
+        val bucket = keepMap.getOrPut(keepKey) { KeepBucket() }
+        return bucket.getOrUpdate(key, block) as T
+    }
+
     internal fun buildTree(): KomposNode {
-        val rootNode = nodePool.get(density, "root", KomposNodeKey.root(this))
+        val rootNode = nodePool.get(density, "root", KomposCallKey.root(this))
         val childNode = operations.readNode(0).second
         if (childNode != null) {
             rootNode.addChild(childNode)
@@ -98,8 +117,37 @@ class Komposer(
         childMeasurePolicy = operation.measurePolicy
     }
 
+    private fun createKeepKey(nodeCallKey: KomposCallKey, keepCallKey: KomposCallKey): String {
+        return "keep_key_${nodeCallKey.key}_${keepCallKey.key}"
+    }
+
+    private class KeepBucket {
+        private var cachedKey: Any? = NoValue
+        private var cachedValue: Any? = NoValue
+
+        fun getOrUpdate(key: Any, block: () -> Any?): Any? {
+            return if (key != cachedKey) {
+                val result = block()
+                cachedKey = key
+                cachedValue = result
+                result
+            } else {
+                if (cachedValue === NoValue) {
+                    val result = block()
+                    cachedKey = key
+                    cachedValue = result
+                    result
+                } else {
+                    cachedValue
+                }
+            }
+        }
+
+        private object NoValue
+    }
+
     private sealed interface TreeOperation {
-        class StartNode(val name: String, val key: KomposNodeKey) : TreeOperation
+        class StartNode(val name: String, val key: KomposCallKey) : TreeOperation
         class SetMeasurePolicy(val measurePolicy: KomposMeasurePolicy) : TreeOperation
         class SetSpek(val spek: Spek) : TreeOperation
         object EndNode : TreeOperation
@@ -108,10 +156,10 @@ class Komposer(
     }
 }
 
-internal object GlobalKomposer {
+object GlobalKomposer {
     private val komposers: MutableMap<String, Komposer> = HashMap()
 
-    fun newKomposer(density: KomposDensity): Komposer {
+    internal fun newKomposer(density: KomposDensity): Komposer {
         val newKomposer = Komposer(
             id = UUID.randomUUID().toString(),
             density = density,
@@ -120,7 +168,7 @@ internal object GlobalKomposer {
         return newKomposer
     }
 
-    fun getOrCreateComposer(density: KomposDensity, id: String?): Komposer {
+    internal fun getOrCreateComposer(density: KomposDensity, id: String?): Komposer {
         return if (id == null) {
             newKomposer(density)
         } else {

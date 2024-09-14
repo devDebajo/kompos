@@ -28,9 +28,12 @@ class KomposView @JvmOverloads constructor(
             GlobalKomposer.newKomposer(KomposContextDensity(context)),
         )
 
-        komposition!!.content()
-        komposition!!.printTree()
+        komposition!!.content = content
         requestLayout()
+    }
+
+    fun rekompose() {
+        komposition?.rekompose()
     }
 
     @SuppressLint("DrawAllocation")
@@ -130,6 +133,13 @@ class Komposition(
 
     private var node: KomposNode? = null
 
+    var content: KomposScope.() -> Unit = {}
+
+    fun rekompose() {
+        node = null
+        ensureNode()
+    }
+
     fun measure(constraints: KomposConstraints): KomposSize {
         val placeable = ensureNode().asMeasurable().measure(constraints)
         placeable.placeAt(0, 0)
@@ -149,7 +159,15 @@ class Komposition(
     }
 
     private fun ensureNode(): KomposNode {
-        return node ?: currentKomposer.buildTree()
-            .also { node = it }
+        val node = node
+        if (node != null) {
+            return node
+        }
+        currentKomposer.startKomposing()
+        content()
+        val newRootNode = currentKomposer.buildTree()
+        currentKomposer.endKomposing()
+        this.node = newRootNode
+        return newRootNode
     }
 }

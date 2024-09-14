@@ -1,8 +1,8 @@
 package ru.debajo.kompos
 
 import ru.debajo.kompos.node.DefaultKomposMeasurePolicy
+import ru.debajo.kompos.node.KomposCallKey
 import ru.debajo.kompos.node.KomposMeasurePolicy
-import ru.debajo.kompos.node.KomposNodeKey
 import ru.debajo.kompos.spek.Spek
 
 fun KomposScope.layout(
@@ -25,7 +25,7 @@ fun KomposScope.newNode(
     content: KomposScope.() -> Unit = {},
     measurePolicy: KomposMeasurePolicy = DefaultKomposMeasurePolicy,
 ) {
-    val nodeKey = KomposNodeKey.current()
+    val nodeKey = KomposCallKey.current()
     currentKomposer.startNode(name, nodeKey)
     currentKomposer.setMeasurePolicy(measurePolicy)
     currentKomposer.setSpek(spek)

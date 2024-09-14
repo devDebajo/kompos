@@ -7,7 +7,7 @@ internal class KomposNodePool {
     private val free: HashSet<KomposNode> = HashSet()
     private val buzy: HashSet<KomposNode> = HashSet()
 
-    fun get(density: KomposDensity, name: String, key: KomposNodeKey): KomposNode {
+    fun get(density: KomposDensity, name: String, key: KomposCallKey): KomposNode {
         if (free.isEmpty()) {
             return KomposNode().also {
                 it.inflate(density, name, key)

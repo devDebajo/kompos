@@ -1,9 +1,10 @@
 package ru.debajo.kompos
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.ui.viewinterop.AndroidView
+import ru.debajo.kompos.holder.mutableHolderOf
+import ru.debajo.kompos.keep.keep
 import ru.debajo.kompos.spek.Spek
 import ru.debajo.kompos.spek.height
 import ru.debajo.kompos.spek.padding
@@ -12,21 +13,25 @@ import ru.debajo.kompos.widget.box
 import ru.debajo.kompos.widget.column
 import ru.debajo.kompos.widget.row
 import ru.debajo.kompos.widget.text
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
-            AndroidView(factory = {
-                KomposView(it).apply {
-                    describeUi {
-                        // val testState by keep { mutableHolderOf(5) }
-                        test()
-                    }
-                }
-            })
+        val komposView = KomposView(this)
+        komposView.describeUi {
+            val keepedValue = keep { mutableHolderOf(Random.nextInt()) }
+            Log.d("yopta", "keepedValue $keepedValue")
+            test()
         }
+        setContentView(komposView)
+//        lifecycleScope.launch {
+//            while (true) {
+//                delay(5000)
+//                komposView.rekompose()
+//            }
+//        }
     }
 
     private fun KomposScope.test() {

@@ -23,7 +23,7 @@ internal class KomposNode : KomposDensity {
     var name: String = ""
         private set
 
-    var key: KomposNodeKey = KomposNodeKey.Empty
+    var key: KomposCallKey = KomposCallKey.Empty
         private set
 
     var spek: Spek = Spek
@@ -46,7 +46,7 @@ internal class KomposNode : KomposDensity {
         }
     }
 
-    fun inflate(density: KomposDensity, name: String, key: KomposNodeKey) {
+    fun inflate(density: KomposDensity, name: String, key: KomposCallKey) {
         this.density = density
         this.name = name
         this.key = key
@@ -107,7 +107,7 @@ internal class KomposNode : KomposDensity {
     fun clear() {
         density = DefaultKomposDensity
         name = ""
-        key = KomposNodeKey.Empty
+        key = KomposCallKey.Empty
         spek = Spek
         childMeasurePolicy = DefaultKomposMeasurePolicy
         nestedNodes.clear()
