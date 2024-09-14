@@ -67,6 +67,19 @@ private class TouchEventsSpek(
     override fun createVisualizer(outer: KomposNodeVisualizer): KomposNodeVisualizer {
         return TouchEventsVisualizer(outer, onTouchEvent)
     }
+
+    override fun toString(): String = "TouchEventsSpek"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TouchEventsSpek
+
+        return onTouchEvent == other.onTouchEvent
+    }
+
+    override fun hashCode(): Int = onTouchEvent.hashCode()
 }
 
 private class TouchEventsVisualizer(

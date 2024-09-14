@@ -29,20 +29,48 @@ fun KomposScope.text(
 ) {
     layout(
         name = "text",
-        spek = spek.then(
-            TextSpek(TextKomposVisualizer(text, color, textSize.toPx()))
-        ),
+        spek = spek.then(TextSpek(text, color, textSize.toPx())),
         content = {},
         measurePolicy = DefaultKomposMeasurePolicy
     )
 }
 
-private class TextSpek(private val visualizer: TextKomposVisualizer) : Spek {
+private class TextSpek(
+    private val text: String,
+    private val color: Kolor,
+    private val textSizePx: Float,
+) : Spek {
     override fun createVisualizer(outer: KomposNodeVisualizer): KomposNodeVisualizer {
-        return outer.then(visualizer)
+        return outer.then(
+            TextKomposVisualizer(
+                text = text,
+                color = color,
+                textSizePx = textSizePx,
+            )
+        )
     }
 
     override fun toString(): String = "TextSpek"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TextSpek
+
+        if (text != other.text) return false
+        if (color != other.color) return false
+        if (textSizePx != other.textSizePx) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = text.hashCode()
+        result = 31 * result + color.hashCode()
+        result = 31 * result + textSizePx.hashCode()
+        return result
+    }
 }
 
 private class TextKomposVisualizer(

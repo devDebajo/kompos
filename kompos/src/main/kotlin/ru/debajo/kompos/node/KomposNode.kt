@@ -313,4 +313,15 @@ private class MeasureSpek(
     }
 
     override fun toString(): String = "MeasureSpek"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MeasureSpek
+
+        return delegatedMeasurePolicy == other.delegatedMeasurePolicy
+    }
+
+    override fun hashCode(): Int = delegatedMeasurePolicy.hashCode()
 }

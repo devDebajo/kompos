@@ -33,6 +33,17 @@ private class DrawableSpek(private val drawable: Drawable) : Spek {
     }
 
     override fun toString(): String = "DrawableSpek"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DrawableSpek
+
+        return drawable == other.drawable
+    }
+
+    override fun hashCode(): Int = drawable.hashCode()
 }
 
 private class DrawableVisualizer(private val drawable: Drawable) : KomposNodeVisualizer {
