@@ -1,5 +1,9 @@
 package ru.debajo.kompos
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import ru.debajo.kompos.keep.KeepObserver
 import ru.debajo.kompos.node.KomposCallKey
 import ru.debajo.kompos.node.KomposMeasurePolicy
 import ru.debajo.kompos.node.KomposNode
@@ -18,7 +22,9 @@ class Komposer(
 
     private var lastKomposingNodeKey: KomposCallKey? = null
 
-    var onChangedListener: () -> Unit = {}
+    internal val coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    internal var onChangedListener: () -> Unit = {}
 
     internal fun startKomposing() {
         operations.clear()
@@ -154,6 +160,17 @@ class Komposer(
             }
         }
 
+        // TODO реализовать нормально
+        fun dispose() {
+            val currentValue = cachedValue
+            cachedKey = NoValue
+            cachedValue = NoValue
+
+            if (currentValue is KeepObserver) {
+                currentValue.onLost()
+            }
+        }
+
         private object NoValue
     }
 
@@ -193,7 +210,7 @@ object GlobalKomposer {
         }
     }
 
-    fun notifyChanged(komposerId: String) {
+    internal fun notifyChanged(komposerId: String) {
         komposers[komposerId]?.onChanged()
     }
 

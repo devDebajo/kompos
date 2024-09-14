@@ -2,14 +2,13 @@ package ru.debajo.kompos
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import ru.debajo.kompos.holder.getValue
 import ru.debajo.kompos.holder.mutableHolderOf
 import ru.debajo.kompos.spek.Spek
 import ru.debajo.kompos.spek.height
 import ru.debajo.kompos.spek.padding
+import ru.debajo.kompos.utils.onLaunch
 import ru.debajo.kompos.widget.KomposAlignment
 import ru.debajo.kompos.widget.box
 import ru.debajo.kompos.widget.column
@@ -32,15 +31,15 @@ class MainActivity : ComponentActivity() {
         }
 
         komposView2.describeUi {
+            onLaunch(Unit) {
+                while (true) {
+                    delay(1000)
+                    counterHolder.value = Random.nextInt()
+                }
+            }
+
             val counter by counterHolder
             test(text = "Counter: $counter")
-        }
-
-        lifecycleScope.launch {
-            while (true) {
-                delay(1000)
-                counterHolder.value = Random.nextInt()
-            }
         }
     }
 

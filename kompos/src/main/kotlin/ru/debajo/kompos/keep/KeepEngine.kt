@@ -15,3 +15,10 @@ fun <T> KomposScope.keep(key: Any, block: () -> T): T {
     val currentCallKey = KomposCallKey.current()
     return currentKomposer.keep(currentCallKey, key, block)
 }
+
+// TODO реализовать нормально
+interface KeepObserver {
+    fun onKeep() = Unit
+
+    fun onLost() = Unit
+}
