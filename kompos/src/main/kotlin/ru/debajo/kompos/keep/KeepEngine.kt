@@ -4,11 +4,11 @@ import ru.debajo.kompos.KomposScope
 import ru.debajo.kompos.node.KomposCallKey
 
 fun <T> KomposScope.keep(block: () -> T): T {
-    return keep(Unit, block)
+    return keep(key = Unit, block)
 }
 
 fun <T> KomposScope.keep(vararg keys: Any?, block: () -> T): T {
-    return keep(key = keys, block = block)
+    return keep(key = keys.toList(), block = block)
 }
 
 fun <T> KomposScope.keep(key: Any, block: () -> T): T {

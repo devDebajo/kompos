@@ -1,5 +1,7 @@
 package ru.debajo.kompos
 
+import android.os.SystemClock
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -71,11 +73,14 @@ class Komposer(
     }
 
     internal fun buildTree(): KomposNode {
+        val start = SystemClock.uptimeMillis()
         val rootNode = nodePool.get(density, "root", KomposCallKey.root(this))
         val childNode = operations.readNode(0).second
         if (childNode != null) {
             rootNode.addChild(childNode)
         }
+        val total = SystemClock.uptimeMillis() - start
+        Log.d("yopta", "buildTree $total")
         return rootNode
     }
 

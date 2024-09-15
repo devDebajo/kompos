@@ -3,8 +3,8 @@ package ru.debajo.kompos
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import ru.debajo.kompos.holder.getValue
-import ru.debajo.kompos.holder.mutableHolderOf
 import ru.debajo.kompos.spek.Spek
 import ru.debajo.kompos.spek.height
 import ru.debajo.kompos.spek.padding
@@ -23,10 +23,10 @@ class MainActivity : ComponentActivity() {
         val komposView1 = findViewById<KomposView>(R.id.kompos1)
         val komposView2 = findViewById<KomposView>(R.id.kompos2)
 
-        val counterHolder = mutableHolderOf(0)
+        val counterHolder = MutableStateFlow(0)
 
         komposView1.describeUi {
-            val counter by counterHolder
+            val counter by counterHolder.toHolder()
             test(text = "Counter: $counter")
         }
 
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            val counter by counterHolder
+            val counter by counterHolder.toHolder()
             test(text = "Counter: $counter")
         }
     }

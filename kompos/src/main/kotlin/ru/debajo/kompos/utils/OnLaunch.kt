@@ -17,7 +17,7 @@ fun KomposScope.onLaunch(key: Any, block: suspend CoroutineScope.() -> Unit) {
 }
 
 fun KomposScope.onLaunch(vararg keys: Any?, block: suspend CoroutineScope.() -> Unit) {
-    onLaunch(key = keys, block = block)
+    onLaunch(key = keys.toList(), block = block)
 }
 
 fun KomposScope.onLost(

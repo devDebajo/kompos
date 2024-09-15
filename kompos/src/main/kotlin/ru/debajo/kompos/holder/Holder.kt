@@ -1,6 +1,14 @@
 package ru.debajo.kompos.holder
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import ru.debajo.kompos.GlobalKomposer
+import ru.debajo.kompos.KomposScope
+import ru.debajo.kompos.keep.keep
+import ru.debajo.kompos.utils.onLaunch
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.reflect.KProperty
 
 interface Holder<T> {
@@ -19,6 +27,31 @@ operator fun <T> Holder<T>.getValue(thisObj: Any?, property: KProperty<*>): T = 
 
 operator fun <T> MutableHolder<T>.setValue(thisObj: Any?, property: KProperty<*>, value: T) {
     this.value = value
+}
+
+fun <T> KomposScope.toHolder(
+    flow: StateFlow<T>,
+    context: CoroutineContext = EmptyCoroutineContext
+): Holder<T> = toHolder(
+    initial = flow.value,
+    flow = flow,
+    context = context,
+)
+
+fun <T> KomposScope.toHolder(
+    initial: T,
+    flow: Flow<T>,
+    context: CoroutineContext = EmptyCoroutineContext
+): Holder<T> {
+    val result = keep { mutableHolderOf(initial) }
+    onLaunch(flow, context) {
+        if (context == EmptyCoroutineContext) {
+            flow.collect { result.value = it }
+        } else withContext(context) {
+            flow.collect { result.value = it }
+        }
+    }
+    return result
 }
 
 private class MutableHolderImpl<T>(initialValue: T) : MutableHolder<T> {
